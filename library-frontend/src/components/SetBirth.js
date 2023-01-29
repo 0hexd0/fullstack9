@@ -32,8 +32,11 @@ const SetBirth = (props) => {
     <div>
       <form onSubmit={submit}>
         <select value={name} onChange={({ target }) => setName(target.value)}>
+          <option key={0} value={''}>
+            please select
+          </option>
           {authorsResult.data.allAuthors.map((a) => (
-            <option id={a.name} value={a.name}>
+            <option key={a.name} value={a.name}>
               {a.name}
             </option>
           ))}
