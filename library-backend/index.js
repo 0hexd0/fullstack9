@@ -169,9 +169,11 @@ const resolvers = {
       if (!author) {
         return null;
       }
+      const authorBooks = books.filter((book) => book.author === author.name);
       const updatedAuthor = { ...author, born: args.setBornTo };
+
       authors = authors.map((a) => (a.name === args.name ? updatedAuthor : a));
-      return updatedAuthor;
+      return { ...updatedAuthor, bookCount: authorBooks.length };
     },
   },
 };
