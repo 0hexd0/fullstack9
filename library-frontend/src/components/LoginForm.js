@@ -3,14 +3,12 @@ import { useMutation } from '@apollo/client'
 import { LOGIN } from '../mutations'
 import { useField } from '../hooks'
 
-const LoginForm = ({ show, setError, setToken }) => {
+const LoginForm = ({ show, setToken }) => {
   const usernameInput = useField('text')
   const passwordInput = useField('password')
 
   const [login, result] = useMutation(LOGIN, {
-    onError: (error) => {
-      setError(error.graphQLErrors[0].message)
-    },
+    onError: (error) => {},
   })
 
   useEffect(() => {

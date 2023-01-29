@@ -9,8 +9,9 @@ import LoginForm from './components/LoginForm'
 const App = () => {
   const client = useApolloClient()
   const [page, setPage] = useState('authors')
-  const [token, setToken] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [token, setToken] = useState(
+    localStorage.getItem('library-user-token') || null
+  )
 
   useEffect(() => {
     if (token) {
@@ -52,11 +53,7 @@ const App = () => {
 
       <SetBirth show={page === 'birth' && token} />
 
-      <LoginForm
-        show={page === 'login' && !token}
-        setToken={setToken}
-        setError={setErrorMessage}
-      />
+      <LoginForm show={page === 'login' && !token} setToken={setToken} />
     </div>
   )
 }
