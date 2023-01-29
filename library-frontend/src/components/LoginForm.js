@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { useMutation } from '@apollo/client'
+import { useMutation, useLazyQuery } from '@apollo/client'
 import { LOGIN } from '../mutations'
+import { CURRENT_USER } from '../queries'
 import { useField } from '../hooks'
 
 const LoginForm = ({ show, setToken }) => {
@@ -11,11 +12,16 @@ const LoginForm = ({ show, setToken }) => {
     onError: (error) => {},
   })
 
+  const [getUser] = useLazyQuery(CURRENT_USER, {
+    fetchPolicy: 'network-only',
+  })
+
   useEffect(() => {
     if (result.data) {
       const token = result.data.login.value
       setToken(token)
       localStorage.setItem('library-user-token', token)
+      getUser()
     }
   }, [result.data]) // eslint-disable-line
 

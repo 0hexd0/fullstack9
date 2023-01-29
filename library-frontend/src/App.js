@@ -24,6 +24,7 @@ const App = () => {
 
   const handleLoginOrOut = () => {
     if (token) {
+      setPage('authors')
       setToken(null)
       localStorage.clear()
       client.resetStore()
@@ -51,13 +52,13 @@ const App = () => {
 
       <Books show={page === 'books'} />
 
-      <NewBook show={page === 'add' && token} />
+      <NewBook show={page === 'add'} />
 
-      <SetBirth show={page === 'birth' && token} />
+      <SetBirth show={page === 'birth'} />
 
-      <Recommend show={page === 'recommend' && token} />
+      <Recommend show={page === 'recommend'} />
 
-      <LoginForm show={page === 'login' && !token} setToken={setToken} />
+      <LoginForm show={page === 'login'} setToken={setToken} />
     </div>
   )
 }
