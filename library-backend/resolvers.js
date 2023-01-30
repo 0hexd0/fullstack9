@@ -1,16 +1,15 @@
 const { ApolloServerErrorCode } = require('@apollo/server/errors')
 const { GraphQLError } = require('graphql')
+const { JWT_SECRET } = require('./utils/config')
 const jwt = require('jsonwebtoken')
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
-const { JWT_SECRET } = require('./utils/config')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 
 const resolvers = {
   Query: {
-    bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
       const filter = args.genre ? { genres: { $in: [args.genre] } } : null
@@ -19,16 +18,16 @@ const resolvers = {
     },
     allAuthors: async (root, args) => {
       const authors = await Author.find({})
-      const books = await Book.find({})
-      authors.forEach((author) => {
-        author.bookCount = books.filter(
-          (book) => book.author.toString() === author._id.toString()
-        ).length
-      })
       return authors
     },
     me: async (root, args, context) => {
       return context.currentUser
+    },
+  },
+  Author: {
+    bookCount: async (root, args, { loaders }) => {
+      const books = await loaders.bookCountLoader.load(root.id)
+      return books.length
     },
   },
   Mutation: {

@@ -12,7 +12,7 @@ const jwt = require('jsonwebtoken')
 const { execute, subscribe } = require('graphql')
 const { useServer } = require('graphql-ws/lib/use/ws')
 const { WebSocketServer } = require('ws')
-
+const loaders = require('./loader')
 const User = require('./models/user')
 const typeDefs = require('./schema')
 const resolvers = require('./resolvers')
@@ -87,7 +87,13 @@ const start = async () => {
         if (auth && auth.toLowerCase().startsWith('bearer ')) {
           const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET)
           const currentUser = await User.findById(decodedToken.id)
-          return { currentUser }
+          return {
+            currentUser,
+            loaders,
+          }
+        }
+        return {
+          loaders,
         }
       },
     })
