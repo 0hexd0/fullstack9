@@ -5,6 +5,8 @@ const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
 const { JWT_SECRET } = require('./utils/config')
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 
 const resolvers = {
   Query: {
@@ -59,6 +61,7 @@ const resolvers = {
       const book = new Book({ ...args, author: author._id })
       const savedBook = await book.save()
       savedBook.author = author
+      pubsub.publish('BOOK_ADDED', { bookAdded: savedBook })
       return savedBook
     },
     editAuthor: async (root, args, context) => {
@@ -119,6 +122,11 @@ const resolvers = {
       }
 
       return { value: jwt.sign(userForToken, JWT_SECRET) }
+    },
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED']),
     },
   },
 }

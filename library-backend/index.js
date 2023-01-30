@@ -9,6 +9,9 @@ const http = require('http')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
+const { execute, subscribe } = require('graphql')
+const { useServer } = require('graphql-ws/lib/use/ws')
+const { WebSocketServer } = require('ws')
 
 const User = require('./models/user')
 const typeDefs = require('./schema')
@@ -37,9 +40,39 @@ const start = async () => {
 
   const schema = makeExecutableSchema({ typeDefs, resolvers })
 
+  // create websocket server
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '',
+  })
+
+  // Save the returned server's info so we can shut down this server later
+  const serverCleanup = useServer(
+    {
+      schema,
+      execute,
+      subscribe,
+    },
+    wsServer
+  )
+
   const server = new ApolloServer({
     schema,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              serverCleanup.close()
+            },
+          }
+        },
+      },
+    ],
   })
 
   await server.start()
